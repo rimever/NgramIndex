@@ -93,11 +93,100 @@ namespace NgramIndex
             {
                 foreach (var item in indexData)
                 {
+                    //TODO:直接行番号ではなく、行の間隔で保存してみたい。
                     string line = @"""" + item.Key + @""",""" + string.Join(@""",""", item.Value) + @"""";
                     writer.WriteLine(line);
                 }
 
                 writer.Flush();
+            }
+        }
+
+        /// <summary>
+        /// インデックスデータを読み込んで、インデックスを取得します。
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        public static Dictionary<string, List<int>> LoadIndexData(string filePath, Encoding encoding)
+        {
+            Dictionary<string, List<int>> indexes = new Dictionary<string, List<int>>();
+            using (var reader = new CsvReader(new StreamReader(filePath, encoding)))
+            {
+                while (reader.Read())
+                {
+                    string indexKey = string.Empty;
+                    List<int> indexLines = new List<int>();
+                    foreach (var item in reader.Context.Record.Select((value, index) => new {value, index}))
+                    {
+                        if (item.index == 0)
+                        {
+                            indexKey = item.value;
+                        }
+                        else
+                        {
+                            if (int.TryParse(item.value, out var convertValue))
+                            {
+                                indexLines.Add(convertValue);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"{item.value}は数値に変換できません。");
+                            }
+                        }
+                    }
+
+                    indexes.Add(indexKey, indexLines);
+                }
+            }
+
+            return indexes;
+        }
+
+        /// <summary>
+        /// キーワードを分割します。
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <param name="ngram"></param>
+        /// <remarks>
+        /// 今回の仕様では渋谷だったら渋,谷
+        /// 東京都だったら、東京,京都となっており、1文字、4文字以上の検索条件については想定されていませんので例外とします。
+        /// </remarks>
+        /// <returns></returns>
+        public static IEnumerable<string> SplitKeyword(string keyword, int ngram)
+        {
+            switch (keyword.Length)
+            {
+                case 2:
+                case 3:
+                    for (int i = 0; i < 2; i++)
+                    {
+                        yield return keyword.Substring(i, keyword.Length - 1);
+                    }
+
+                    break;
+                default:
+                    throw new InvalidOperationException("検索キーワードは2文字か3文字で指定してください。");
+            }
+        }
+
+        /// <summary>
+        /// インデックスを用いて、キーワードにヒットする行を取得します。
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <param name="indexData"></param>
+        /// <returns></returns>
+        public static IEnumerable<int> SearchKeywordLines(string keyword, Dictionary<string, List<int>> indexData)
+        {
+            foreach (var index in indexData)
+            {
+                if (index.Key.Contains(keyword))
+                {
+                    foreach (var lineNumber in index.Value)
+                    {
+                        yield return lineNumber;
+                    }
+                }
             }
         }
     }

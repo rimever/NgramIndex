@@ -20,6 +20,11 @@ namespace NgramIndex
         private const string DataSourceUrl = "http://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip";
 
         /// <summary>
+        /// インデックスファイルの拡張子
+        /// </summary>
+        private const string IndexFileExtension = ".idx";
+
+        /// <summary>
         /// ここで用いるエンコーディングを指定します。
         /// </summary>
         private static readonly Encoding FileEncoding = Encoding.GetEncoding("Shift-JIS");
@@ -30,6 +35,8 @@ namespace NgramIndex
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            //TODO:処理時刻を計測する
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
             switch (args.Length)
             {
                 case 0:
@@ -48,14 +55,73 @@ namespace NgramIndex
         }
 
         /// <summary>
+        /// 未補足の例外が発生したときの処理です。
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Console.WriteLine("想定されない例外が発生しました。");
+            Console.WriteLine(e.ExceptionObject.ToString());
+            Environment.Exit(1);
+        }
+
+        /// <summary>
         /// レコードを検索します。
         /// </summary>
         /// <param name="keyword">検索キーワード</param>
         private static void SearchRecord(string keyword)
         {
-            //インデックスファイルを読み込む
-            //インデックスに従って結果を検出していく。
-            throw new NotImplementedException();
+            string filePath = GetIndexFilePath();
+            if (string.IsNullOrEmpty(filePath))
+            {
+                Console.WriteLine("インデックスがありません。先にインデックスを作成してください。");
+                return;
+            }
+
+            var indexData = IndexUtility.LoadIndexData(filePath, FileEncoding);
+            var keywordSplit = IndexUtility.SplitKeyword(keyword, Ngram).ToList();
+            var result = IndexUtility.SearchKeywordLines(keywordSplit.FirstOrDefault(), indexData);
+
+            foreach (var item in keywordSplit.Skip(1))
+            {
+                var next = IndexUtility.SearchKeywordLines(item, indexData).ToList();
+                result = result.Intersect(next);
+            }
+
+            var resultList = result.ToList();
+
+            //TODO:パス管理が煩雑
+            string csvFilePath = GetCsvFilePath(Path.GetFullPath("extract"));
+
+            //TODO: 行の最初の値を定数化
+            int line = 1;
+            using (var reader = new StreamReader(csvFilePath, FileEncoding))
+            {
+                string readLine;
+                while ((readLine = reader.ReadLine()) != null)
+                {
+                    if (resultList.Contains(line))
+                    {
+                        Console.WriteLine(readLine);
+                    }
+
+                    line++;
+                }
+            }
+
+            Console.WriteLine("検索結果が出力されました。");
+        }
+
+        /// <summary>
+        /// インデックスファイルのパスを取得します。
+        /// </summary>
+        /// <returns></returns>
+        private static string GetIndexFilePath()
+        {
+            var filePath = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*" + IndexFileExtension,
+                SearchOption.AllDirectories).FirstOrDefault();
+            return filePath;
         }
 
 
@@ -72,7 +138,7 @@ namespace NgramIndex
 
 
             var indexData = IndexUtility.GetIndexData(csvFilePath, Ngram, FileEncoding);
-            string indexFilePath = csvFilePath + ".idx";
+            string indexFilePath = csvFilePath + IndexFileExtension;
             IndexUtility.SaveIndexData(indexFilePath, indexData, FileEncoding);
         }
 
@@ -94,8 +160,7 @@ namespace NgramIndex
             }
 
             ZipFile.ExtractToDirectory(zipFilePath, extractDirectory);
-            string csvFilePath = Directory.EnumerateFiles(extractDirectory, "*.csv", SearchOption.AllDirectories)
-                .SingleOrDefault();
+            string csvFilePath = GetCsvFilePath(extractDirectory);
 
             if (csvFilePath == null)
             {
@@ -103,6 +168,17 @@ namespace NgramIndex
             }
 
             return csvFilePath;
+        }
+
+        /// <summary>
+        /// csvファイルのパスを取得します。
+        /// </summary>
+        /// <param name="extractDirectory"></param>
+        /// <returns></returns>
+        private static string GetCsvFilePath(string extractDirectory)
+        {
+            return Directory.EnumerateFiles(extractDirectory, "*.csv", SearchOption.AllDirectories)
+                .SingleOrDefault();
         }
 
         /// <summary>
