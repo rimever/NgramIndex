@@ -199,18 +199,20 @@ namespace NgramIndex.Utilities
         /// <returns></returns>
         public static IEnumerable<string> SplitKeyword(string keyword, int ngram)
         {
-            switch (keyword.Length)
+            if (keyword.Length <= ngram)
             {
-                case 2:
-                case 3:
-                    for (int i = 0; i < 2; i++)
-                    {
-                        yield return keyword.Substring(i, keyword.Length - 1);
-                    }
+                for (int i = 0; i < keyword.Length; i++)
+                {
+                    yield return keyword.Substring(i, 1);
+                }
+            }
+            else
+            {
+                for (int i = 0; i <= keyword.Length - ngram; i++)
+                {
+                    yield return keyword.Substring(i, ngram);
+                }
 
-                    break;
-                default:
-                    throw new InvalidOperationException("検索キーワードは2文字か3文字で指定してください。");
             }
         }
 
