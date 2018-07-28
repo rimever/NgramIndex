@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using NgramIndex.Services;
 
 namespace NgramIndex
@@ -12,7 +13,8 @@ namespace NgramIndex
         static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-            var service = new JapanPostSearchService("storage");
+            var storagePath = Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "storage");
+            var service = new JapanPostSearchService(storagePath);
             switch (args.Length)
             {
                 case 0:
