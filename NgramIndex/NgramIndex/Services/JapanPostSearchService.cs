@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using NgramIndex.Utilities;
 
-namespace NgramIndex
+namespace NgramIndex.Services
 {
     /// <summary>
     /// 郵便番号の検索を行うためのサービスです。
@@ -22,6 +22,16 @@ namespace NgramIndex
         /// </summary>
         private const string DataSourceUrl = "http://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip";
 
+        private readonly string _storageDirectoryPath;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public JapanPostSearchService(string storageDirectoryPath)
+        {
+            _storageDirectoryPath = storageDirectoryPath;
+            Directory.CreateDirectory(storageDirectoryPath);
+        }
 
         /// <summary>
         /// ここで用いるエンコーディングを指定します。
@@ -34,7 +44,7 @@ namespace NgramIndex
         /// <param name="keyword">検索キーワード</param>
         public IEnumerable<string> SearchRecord(string keyword)
         {
-            string filePath = FileUtility.GetIndexFilePath();
+            string filePath = FileUtility.GetIndexFilePath(_storageDirectoryPath);
             if (String.IsNullOrEmpty(filePath))
             {
                 Console.WriteLine("インデックスがありません。先にインデックスを作成してください。");
@@ -53,8 +63,7 @@ namespace NgramIndex
 
             var resultList = result.ToList();
 
-            //TODO:パス管理が煩雑
-            string csvFilePath = FileUtility.GetCsvFilePath(Path.GetFullPath("extract"));
+            string csvFilePath = FileUtility.GetCsvFilePath(_storageDirectoryPath);
 
             foreach (var text in FileUtility.GetFileLines(resultList, csvFilePath, FileEncoding))
             {
@@ -67,10 +76,10 @@ namespace NgramIndex
         /// </summary>
         public void CreateIndex()
         {
-            string zipFilePath = "download.zip";
+            string zipFilePath = Path.Combine(_storageDirectoryPath, "download.zip");
             FileUtility.DownloadZipFile(zipFilePath, DataSourceUrl);
 
-            string extractDirectory = Path.GetFullPath("extract");
+            string extractDirectory = FileUtility.GetZipExtractDirectory(_storageDirectoryPath);
             string csvFilePath = FileUtility.ExtractCsvFile(zipFilePath, extractDirectory);
 
             var indexData = IndexUtility.GetIndexData(csvFilePath, Ngram, FileEncoding);

@@ -49,7 +49,7 @@
   <ItemGroup>
     <Compile Include="Utilities\FileUtility.cs" />
     <Compile Include="Utilities\IndexUtility.cs" />
-    <Compile Include="JapanPostSearchService.cs" />
+    <Compile Include="Services\JapanPostSearchService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

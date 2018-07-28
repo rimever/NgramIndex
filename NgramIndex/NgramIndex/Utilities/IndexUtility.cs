@@ -98,13 +98,34 @@ namespace NgramIndex.Utilities
             {
                 foreach (var item in indexData)
                 {
-                    //TODO:直接行番号ではなく、行の間隔で保存してみたい。
-                    string line = @"""" + item.Key + @""",""" + string.Join(@""",""", item.Value) + @"""";
+                    string line = GetSaveIndexDataLine(item);
                     writer.WriteLine(line);
                 }
 
                 writer.Flush();
             }
+        }
+        /// <summary>
+        /// インデックス情報を保存する文字列情報を取得します。
+        /// </summary>
+        /// <remarks>
+        /// 値そのままを保存すると肥大化してしまうので、間隔で保存します。
+        /// 9000行,9001行,9007行であれば
+        /// 9000,1,6とします。
+        /// </remarks>
+        /// <param name="keyValuePair"></param>
+        /// <returns></returns>
+        private static string GetSaveIndexDataLine(KeyValuePair<string, List<int>> keyValuePair)
+        {
+            List<int> storageInts = new List<int>();
+            int before = keyValuePair.Value.First();
+            storageInts.Add(before);
+            foreach (var lineNumber in keyValuePair.Value.Skip(1))
+            {
+                storageInts.Add(lineNumber - before);
+                before = lineNumber;
+            }
+            return @"""" + keyValuePair.Key + @""",""" + string.Join(@""",""", storageInts) + @"""";
         }
 
         /// <summary>
@@ -120,32 +141,50 @@ namespace NgramIndex.Utilities
             {
                 while (reader.Read())
                 {
-                    string indexKey = string.Empty;
-                    List<int> indexLines = new List<int>();
-                    foreach (var item in reader.Context.Record.Select((value, index) => new {value, index}))
-                    {
-                        if (item.index == 0)
-                        {
-                            indexKey = item.value;
-                        }
-                        else
-                        {
-                            if (int.TryParse(item.value, out var convertValue))
-                            {
-                                indexLines.Add(convertValue);
-                            }
-                            else
-                            {
-                                Console.WriteLine($"{item.value}は数値に変換できません。");
-                            }
-                        }
-                    }
-
-                    indexes.Add(indexKey, indexLines);
+                    var records = reader.Context.Record;
+                    KeyValuePair<string, List<int>> keyValuePair = LoadIndexDataLine(records);
+                    indexes.Add(keyValuePair.Key, keyValuePair.Value);
                 }
             }
 
             return indexes;
+        }
+        /// <summary>
+        /// インデックスの行データの値からインデックス情報を抽出します。
+        /// </summary>
+        /// <param name="records"></param>
+        /// <returns></returns>
+        private static KeyValuePair<string, List<int>> LoadIndexDataLine(string[] records)
+        {
+            string indexKey = string.Empty;
+            List<int> indexLines = new List<int>();
+            foreach (var item in records.Select((value, index) => new { value, index }))
+            {
+                if (item.index == 0)
+                {
+                    indexKey = item.value;
+                }
+                else
+                {
+                    if (int.TryParse(item.value, out var convertValue))
+                    {
+                        int indexLineNumber = convertValue;
+                        if (indexLines.Any())
+                        {
+                            indexLineNumber += indexLines.LastOrDefault();
+                        }
+                        indexLines.Add(indexLineNumber);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"{item.value}は数値に変換できません。");
+                    }
+                }
+            }
+
+            KeyValuePair<string, List<int>> keyValuePair =
+                new KeyValuePair<string, List<int>>(indexKey, indexLines);
+            return keyValuePair;
         }
 
         /// <summary>

@@ -18,10 +18,10 @@ namespace NgramIndex.Utilities
         /// <summary>
         /// 指定行のファイルを取得します。
         /// </summary>
-        /// <param name="resultList"></param>
+        /// <param name="lineNumbers"></param>
         /// <param name="filePath"></param>
         /// <param name="encoding"></param>
-        public static IEnumerable<string> GetFileLines(List<int> resultList, string filePath, Encoding encoding)
+        public static IEnumerable<string> GetFileLines(List<int> lineNumbers, string filePath, Encoding encoding)
         {
             int line = IndexUtility.LineStartNumber;
             using (var reader = new StreamReader(filePath, encoding))
@@ -29,7 +29,7 @@ namespace NgramIndex.Utilities
                 string readLine;
                 while ((readLine = reader.ReadLine()) != null)
                 {
-                    if (resultList.Contains(line))
+                    if (lineNumbers.Contains(line))
                     {
                         yield return readLine;
                     }
@@ -42,10 +42,11 @@ namespace NgramIndex.Utilities
         /// <summary>
         /// インデックスファイルのパスを取得します。
         /// </summary>
+        /// <param name="storageDirectory"></param>
         /// <returns></returns>
-        public static string GetIndexFilePath()
+        public static string GetIndexFilePath(string storageDirectory)
         {
-            var filePath = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*" + IndexFileExtension,
+            var filePath = Directory.EnumerateFiles(storageDirectory, "*" + IndexFileExtension,
                 SearchOption.AllDirectories).FirstOrDefault();
             return filePath;
         }
@@ -82,12 +83,22 @@ namespace NgramIndex.Utilities
         /// <summary>
         /// csvファイルのパスを取得します。
         /// </summary>
-        /// <param name="extractDirectory"></param>
+        /// <param name="storageDirectory"></param>
         /// <returns></returns>
-        public static string GetCsvFilePath(string extractDirectory)
+        public static string GetCsvFilePath(string storageDirectory)
         {
-            return Directory.EnumerateFiles(extractDirectory, "*.csv", SearchOption.AllDirectories)
+            return Directory.EnumerateFiles(storageDirectory, "*.csv", SearchOption.AllDirectories)
                 .SingleOrDefault();
+        }
+
+        /// <summary>
+        /// zipの解凍先フォルダを取得します。
+        /// </summary>
+        /// <param name="storageDirectory"></param>
+        /// <returns></returns>
+        public static string GetZipExtractDirectory(string storageDirectory)
+        {
+            return Path.Combine(storageDirectory, "extract");
         }
 
         /// <summary>

@@ -45,6 +45,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Services\JapanPostSearchServiceTest.cs" />
+    <Compile Include="TestSetup.cs" />
     <Compile Include="Utilties\IndexUtilityTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -58,6 +60,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="TestResult\Services\JapanPostSearchService\CreateIndex\" />
+    <Folder Include="TestResult\Services\JapanPostSearchService\SearchInputCase1\" />
+    <Folder Include="TestResult\Services\JapanPostSearchService\SearchInputCase2\" />
     <Folder Include="TestResult\Utilties\IndexUtility\SaveIndexData\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
