@@ -5,13 +5,18 @@ using System.Linq;
 using System.Text;
 using CsvHelper;
 
-namespace NgramIndex
+namespace NgramIndex.Utilities
 {
     /// <summary>
     /// インデックスを扱うユーティリティクラスです。
     /// </summary>
     public static class IndexUtility
     {
+        /// <summary>
+        /// 行数は１からカウントしていきます。
+        /// </summary>
+        public const int LineStartNumber = 1;
+
         /// <summary>
         /// 指定文字数のNgramで分割します。
         /// </summary>
@@ -54,7 +59,7 @@ namespace NgramIndex
             Dictionary<string, List<int>> indexes = new Dictionary<string, List<int>>();
             using (var reader = new CsvReader(new StreamReader(csvFilePath, encoding)))
             {
-                int line = 1;
+                int line = LineStartNumber;
                 while (reader.Read())
                 {
                     foreach (var cellData in reader.Context.Record)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NgramIndex.Utilities;
 using NUnit.Framework;
 
 namespace NgramIndex.Tests
@@ -54,7 +55,7 @@ namespace NgramIndex.Tests
                 {"大阪", new List<int> {4, 8}}
             };
             string saveFilePath =
-                Path.Combine(RootDirectory, "TestResult", "IndexUtility", "SaveIndexData", "test.idx");
+                Path.Combine(RootDirectory, "TestResult", "Utilties", "IndexUtility", "SaveIndexData", "test.idx");
 
             var encoding = Encoding.GetEncoding("Shift-JIS");
             IndexUtility.SaveIndexData(saveFilePath, expect, encoding);
