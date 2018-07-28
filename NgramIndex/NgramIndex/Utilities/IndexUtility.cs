@@ -125,7 +125,7 @@ namespace NgramIndex.Utilities
                 storageInts.Add(lineNumber - before);
                 before = lineNumber;
             }
-            return @"""" + keyValuePair.Key + @""",""" + string.Join(@""",""", storageInts) + @"""";
+            return @"""" + keyValuePair.Key + @"""," + string.Join(@",", storageInts);
         }
 
         /// <summary>
