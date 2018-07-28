@@ -25,7 +25,6 @@ namespace NgramIndex
                     {
                         Console.WriteLine(text);
                     }
-
                     Console.WriteLine("検索結果が出力されました。");
                     break;
                 default:
