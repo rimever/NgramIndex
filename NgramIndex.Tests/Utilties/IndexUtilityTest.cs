@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,15 +7,17 @@ using NUnit.Framework;
 
 namespace NgramIndex.Tests.Utilties
 {
+    /// <summary>
+    /// <see cref="IndexUtility"/>をテストするクラスです。
+    /// </summary>
     public class IndexUtilityTest
     {
-
         /// <summary>
         /// <seealso cref="IndexUtility.SplitNgram"/>をテストします。
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="ngram"></param>
-        /// <param name="expect"></param>
+        /// <param name="text">文字列</param>
+        /// <param name="ngram">Ngramの値</param>
+        /// <param name="expect">期待値</param>
         [TestCaseSource(nameof(SplitNgramTestCaseDatas))]
         public void SplitNgram(string text, int ngram, List<string> expect)
         {
@@ -53,7 +54,8 @@ namespace NgramIndex.Tests.Utilties
                 {"大阪", new List<int> {4, 8}}
             };
             string saveFilePath =
-                Path.Combine(TestSetup.RootDirectory, "TestResult", "Utilties", "IndexUtility", "SaveIndexData", "test.idx");
+                Path.Combine(TestSetup.RootDirectory, "TestResult", "Utilties", "IndexUtility", "SaveIndexData",
+                    "test.idx");
 
             var encoding = Encoding.GetEncoding("Shift-JIS");
             IndexUtility.SaveIndexData(saveFilePath, expect, encoding);
@@ -62,15 +64,48 @@ namespace NgramIndex.Tests.Utilties
         }
 
         /// <summary>
+        /// インデックスデータの保存と読み込みを行い、正しく保存と読み込みが行えることを検証します。
+        /// </summary>
+        [Test]
+        public void LoadIndexDataArgumentKeywords()
+        {
+            var indices = new Dictionary<string, List<int>>
+            {
+                {"0", new List<int> {1, 2, 4}},
+                {"関東", new List<int> {2, 5, 9}},
+                {"大阪", new List<int> {4, 8}},
+                {"京都", new List<int> {5, 9}}
+            };
+            var expect = new Dictionary<string, List<int>>();
+            var keywords = new List<string> {"東", "京"};
+            foreach (var index in indices)
+            {
+                if (keywords.Any(keyword => index.Key.Contains(keyword)))
+                {
+                    expect.Add(index.Key, index.Value);
+                }
+            }
+
+            string saveFilePath =
+                Path.Combine(TestSetup.RootDirectory, "TestResult", "Utilties", "IndexUtility", "SaveIndexData",
+                    "test.idx");
+
+            var encoding = Encoding.GetEncoding("Shift-JIS");
+            IndexUtility.SaveIndexData(saveFilePath, indices, encoding);
+            var actual = IndexUtility.LoadIndexData(saveFilePath, encoding, keywords);
+            CollectionAssert.AreEquivalent(expect, actual);
+        }
+
+        /// <summary>
         /// <see cref="IndexUtility.SearchKeywordLines"/>を検証します。
         /// </summary>
         /// <param name="keyword">検索するキーワード</param>
-        /// <param name="indexes">インデックス</param>
+        /// <param name="indices">インデックス</param>
         /// <param name="expected">期待値</param>
         [TestCaseSource(nameof(SearchKeywordLinesTestCaseDatas))]
-        public void SearchKeywordLines(string keyword, Dictionary<string, List<int>> indexes, List<int> expected)
+        public void SearchKeywordLines(string keyword, Dictionary<string, List<int>> indices, List<int> expected)
         {
-            var actual = IndexUtility.SearchKeywordLines(keyword, indexes).ToList();
+            var actual = IndexUtility.SearchKeywordLines(keyword, indices).ToList();
             CollectionAssert.AreEqual(expected, actual);
         }
 
@@ -94,6 +129,8 @@ namespace NgramIndex.Tests.Utilties
         /// <summary>
         /// <seealso cref="IndexUtility.SplitKeyword"/>をテストします。
         /// </summary>
+        /// <param name="keyword">キーワード</param>
+        /// <param name="ngram">Ngramの値</param>
         /// <returns></returns>
         [TestCaseSource(nameof(SplitKeywordTestCaseDatas))]
         public IList<string> SplitKeyword(string keyword, int ngram)

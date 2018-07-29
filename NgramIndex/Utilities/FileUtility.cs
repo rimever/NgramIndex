@@ -8,6 +8,9 @@ using System.Text;
 
 namespace NgramIndex.Utilities
 {
+    /// <summary>
+    /// ファイルを扱うユーティリティクラスです。
+    /// </summary>
     public static class FileUtility
     {
         /// <summary>
@@ -18,9 +21,9 @@ namespace NgramIndex.Utilities
         /// <summary>
         /// 指定行のファイルを取得します。
         /// </summary>
-        /// <param name="lineNumbers"></param>
-        /// <param name="filePath"></param>
-        /// <param name="encoding"></param>
+        /// <param name="lineNumbers">行番号</param>
+        /// <param name="filePath">ファイルパス</param>
+        /// <param name="encoding">文字コード</param>
         public static IEnumerable<string> GetFileLines(List<int> lineNumbers, string filePath, Encoding encoding)
         {
             int line = IndexUtility.LineStartNumber;
@@ -42,7 +45,7 @@ namespace NgramIndex.Utilities
         /// <summary>
         /// インデックスファイルのパスを取得します。
         /// </summary>
-        /// <param name="storageDirectory"></param>
+        /// <param name="storageDirectory">保存先ディレクトリ</param>
         /// <returns></returns>
         public static string GetIndexFilePath(string storageDirectory)
         {
@@ -58,8 +61,8 @@ namespace NgramIndex.Utilities
         /// <remarks>
         /// zipファイルを展開したらcsvファイルがあるという前提です。
         /// </remarks>
-        /// <param name="zipFilePath"></param>
-        /// <param name="extractDirectory"></param>
+        /// <param name="zipFilePath">zipファイルパス</param>
+        /// <param name="extractDirectory">展開先ディレクトリ</param>
         /// <returns></returns>
         public static string ExtractCsvFile(string zipFilePath, string extractDirectory)
         {
@@ -83,7 +86,7 @@ namespace NgramIndex.Utilities
         /// <summary>
         /// csvファイルのパスを取得します。
         /// </summary>
-        /// <param name="storageDirectory"></param>
+        /// <param name="storageDirectory">保存先ディレクトリ</param>
         /// <returns></returns>
         public static string GetCsvFilePath(string storageDirectory)
         {
@@ -94,7 +97,7 @@ namespace NgramIndex.Utilities
         /// <summary>
         /// zipの解凍先フォルダを取得します。
         /// </summary>
-        /// <param name="storageDirectory"></param>
+        /// <param name="storageDirectory">保存先ディレクトリ</param>
         /// <returns></returns>
         public static string GetZipExtractDirectory(string storageDirectory)
         {
@@ -105,7 +108,7 @@ namespace NgramIndex.Utilities
         /// データソースとするZipファイルをダウンロードします。
         /// </summary>
         /// <param name="downloadFilePath">保存先ファイルパス</param>
-        /// <param name="dataSourceUrl"></param>
+        /// <param name="dataSourceUrl">データソースのURL</param>
         public static void DownloadZipFile(string downloadFilePath, string dataSourceUrl)
         {
             using (var webClient = new WebClient())

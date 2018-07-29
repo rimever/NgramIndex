@@ -56,7 +56,7 @@ namespace NgramIndex.Utilities
         /// <returns></returns>
         public static Dictionary<string, List<int>> GetIndexData(string csvFilePath, int ngram, Encoding encoding)
         {
-            Dictionary<string, List<int>> indexes = new Dictionary<string, List<int>>();
+            Dictionary<string, List<int>> indeces = new Dictionary<string, List<int>>();
             using (var reader = new CsvReader(new StreamReader(csvFilePath, encoding)))
             {
                 int line = LineStartNumber;
@@ -67,12 +67,12 @@ namespace NgramIndex.Utilities
                         var split = SplitNgram(cellData, ngram);
                         foreach (var item in split.Distinct())
                         {
-                            if (!indexes.ContainsKey(item))
+                            if (!indeces.ContainsKey(item))
                             {
-                                indexes.Add(item, new List<int>());
+                                indeces.Add(item, new List<int>());
                             }
 
-                            indexes[item].Add(line);
+                            indeces[item].Add(line);
                         }
                     }
 
@@ -80,7 +80,7 @@ namespace NgramIndex.Utilities
                 }
             }
 
-            return indexes;
+            return indeces;
         }
 
         /// <summary>
@@ -105,6 +105,7 @@ namespace NgramIndex.Utilities
                 writer.Flush();
             }
         }
+
         /// <summary>
         /// インデックス情報を保存する文字列情報を取得します。
         /// </summary>
@@ -113,7 +114,7 @@ namespace NgramIndex.Utilities
         /// 9000行,9001行,9007行であれば
         /// 9000,1,6とします。
         /// </remarks>
-        /// <param name="keyValuePair"></param>
+        /// <param name="keyValuePair">インデックスする単語と行番号のペア</param>
         /// <returns></returns>
         private static string GetSaveIndexDataLine(KeyValuePair<string, List<int>> keyValuePair)
         {
@@ -125,6 +126,7 @@ namespace NgramIndex.Utilities
                 storageInts.Add(lineNumber - before);
                 before = lineNumber;
             }
+
             return @"""" + keyValuePair.Key + @"""," + string.Join(@",", storageInts);
         }
 
@@ -133,22 +135,33 @@ namespace NgramIndex.Utilities
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="encoding"></param>
+        /// <param name="keywords">キーワードを含むインデックスだけを抽出します。</param>
         /// <returns></returns>
-        public static Dictionary<string, List<int>> LoadIndexData(string filePath, Encoding encoding)
+        public static Dictionary<string, List<int>> LoadIndexData(string filePath, Encoding encoding,
+            List<string> keywords = null)
         {
-            Dictionary<string, List<int>> indexes = new Dictionary<string, List<int>>();
+            Dictionary<string, List<int>> indices = new Dictionary<string, List<int>>();
             using (var reader = new CsvReader(new StreamReader(filePath, encoding)))
             {
                 while (reader.Read())
                 {
                     var records = reader.Context.Record;
+                    if (keywords != null)
+                    {
+                        if (keywords.All(keyword => !records[0].Contains(keyword)))
+                        {
+                            continue;
+                        }
+                    }
+
                     KeyValuePair<string, List<int>> keyValuePair = LoadIndexDataLine(records);
-                    indexes.Add(keyValuePair.Key, keyValuePair.Value);
+                    indices.Add(keyValuePair.Key, keyValuePair.Value);
                 }
             }
 
-            return indexes;
+            return indices;
         }
+
         /// <summary>
         /// インデックスの行データの値からインデックス情報を抽出します。
         /// </summary>
@@ -158,7 +171,7 @@ namespace NgramIndex.Utilities
         {
             string indexKey = string.Empty;
             List<int> indexLines = new List<int>();
-            foreach (var item in records.Select((value, index) => new { value, index }))
+            foreach (var item in records.Select((value, index) => new {value, index}))
             {
                 if (item.index == 0)
                 {
@@ -173,6 +186,7 @@ namespace NgramIndex.Utilities
                         {
                             indexLineNumber += indexLines.LastOrDefault();
                         }
+
                         indexLines.Add(indexLineNumber);
                     }
                     else
@@ -190,11 +204,11 @@ namespace NgramIndex.Utilities
         /// <summary>
         /// キーワードを分割します。
         /// </summary>
-        /// <param name="keyword"></param>
-        /// <param name="ngram"></param>
+        /// <param name="keyword">キーワード</param>
+        /// <param name="ngram">Ngramの値</param>
         /// <remarks>
         /// 今回の仕様では渋谷だったら渋,谷
-        /// 東京都だったら、東京,京都となっており、1文字、4文字以上の検索条件については想定されていませんので例外とします。
+        /// 東京都だったら、東京,京都となっており、1文字、4文字以上の検索条件については想定されていません。こちらの方で判断して分割します。
         /// </remarks>
         /// <returns></returns>
         public static IEnumerable<string> SplitKeyword(string keyword, int ngram)
@@ -212,15 +226,14 @@ namespace NgramIndex.Utilities
                 {
                     yield return keyword.Substring(i, ngram);
                 }
-
             }
         }
 
         /// <summary>
         /// インデックスを用いて、キーワードにヒットする行を取得します。
         /// </summary>
-        /// <param name="keyword"></param>
-        /// <param name="indexData"></param>
+        /// <param name="keyword">キーワード</param>
+        /// <param name="indexData">インデックス情報</param>
         /// <returns></returns>
         public static IEnumerable<int> SearchKeywordLines(string keyword, Dictionary<string, List<int>> indexData)
         {

@@ -60,6 +60,7 @@
 
 + NgramIndex.csproj			 …… 実行プログラム
 + NgramIndex.Tests.csproj	 …… テストプロジェクト
++ NgramIndex.Benchmarks.csproj	 …… ベンチマークプロジェクト
 
 #### NgramIndex.csprojについて
 
@@ -78,7 +79,58 @@
 
 これにより、45530KBから24241KBと半分に削減しています。（その後、無駄な行数のダブルクォートを削除して13108KB)
 
+### 検索について
+
+インデックスをすべて読み込んでから処理をしていましたが、処理が重かったので、インデックスを読み込むときに検索キーワードに必要な行だけを読み込んで処理しています。
+
+これにより、
+
+
+|検索|インデックスすべてを読み込む|インデックスを必要なだけ読み込む|
+|----------------- |---------:|---------:|
+|渋谷で検索したとき|2.388 s|1.314 s|
+|東京都で検索したとき|3.367 s| 2.327 s|
+
+
+#### インデックスをすべて読み込むとき
+
+BenchmarkDotNet=v0.11.0, OS=Windows 10.0.17134.165 (1803/April2018Update/Redstone4)
+Intel Core i7-7920HQ CPU 3.10GHz (Kaby Lake), 1 CPU, 2 logical and 2 physical cores
+  [Host]     : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 32bit LegacyJIT-v4.7.3131.0  [AttachedDebugger]
+  DefaultJob : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 32bit LegacyJIT-v4.7.3131.0
+
+
+```
+|           Method |     Mean |    Error |   StdDev |   Median |
+|----------------- |---------:|---------:|---------:|---------:|
+|      CreateIndex |  7.435 s | 0.1323 s | 0.1033 s |  7.410 s |
+| SearchInputCase1 |  2.388 s | 0.0396 s | 0.0370 s |  2.385 s |
+| SearchInputCase2 |  3.367 s | 0.0626 s | 0.0586 s |  3.350 s |
+|        SearchAll | 13.931 s | 0.6597 s | 1.8170 s | 13.202 s |
+|    SearchNoIndex |  1.659 s | 0.0091 s | 0.0085 s |  1.662 s |
+
+
+#### インデックスを読み込むときに必要なデータだけを読み込む
+
+BenchmarkDotNet=v0.11.0, OS=Windows 10.0.17134.165 (1803/April2018Update/Redstone4)
+Intel Core i7-7920HQ CPU 3.10GHz (Kaby Lake), 1 CPU, 2 logical and 2 physical cores
+  [Host]     : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 32bit LegacyJIT-v4.7.3131.0  [AttachedDebugger]
+  DefaultJob : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 32bit LegacyJIT-v4.7.3131.0
+
+
+```
+|           Method |     Mean |    Error |   StdDev |
+|----------------- |---------:|---------:|---------:|
+|      CreateIndex |  7.445 s | 0.0857 s | 0.0669 s |
+| SearchInputCase1 |  1.314 s | 0.0255 s | 0.0239 s |
+| SearchInputCase2 |  2.327 s | 0.0420 s | 0.0393 s |
+|        SearchAll | 11.220 s | 0.1634 s | 0.1365 s |
+|    SearchNoIndex |  1.742 s | 0.0238 s | 0.0223 s |
+
+
+
 ### 使用ライブラリ
 
 + CsvHelper
 + Nunit
++ BenchmarkDotNet

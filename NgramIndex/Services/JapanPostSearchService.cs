@@ -51,13 +51,13 @@ namespace NgramIndex.Services
                 yield break;
             }
 
-            var indexData = IndexUtility.LoadIndexData(filePath, FileEncoding);
             var keywordSplit = IndexUtility.SplitKeyword(keyword, Ngram).ToList();
-            var result = IndexUtility.SearchKeywordLines(keywordSplit.FirstOrDefault(), indexData);
+            var indices = IndexUtility.LoadIndexData(filePath, FileEncoding, keywordSplit);
+            var result = IndexUtility.SearchKeywordLines(keywordSplit.FirstOrDefault(), indices);
 
             foreach (var item in keywordSplit.Skip(1))
             {
-                var next = IndexUtility.SearchKeywordLines(item, indexData).ToList();
+                var next = IndexUtility.SearchKeywordLines(item, indices).ToList();
                 result = result.Intersect(next);
             }
 

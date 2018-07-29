@@ -7,7 +7,7 @@ namespace NgramIndex
     class Program
     {
         /// <summary>
-        /// プログラムのメイン処理
+        /// プログラムのメインエントリ
         /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
@@ -28,6 +28,7 @@ namespace NgramIndex
                     {
                         Console.WriteLine(text);
                     }
+
                     Console.WriteLine("検索結果が出力されました。");
                     break;
                 default:
