@@ -100,7 +100,6 @@ Intel Core i7-7920HQ CPU 3.10GHz (Kaby Lake), 1 CPU, 2 logical and 2 physical co
   DefaultJob : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 32bit LegacyJIT-v4.7.3131.0
 
 
-```
 |           Method |     Mean |    Error |   StdDev |   Median |
 |----------------- |---------:|---------:|---------:|---------:|
 |      CreateIndex |  7.435 s | 0.1323 s | 0.1033 s |  7.410 s |
@@ -117,8 +116,6 @@ Intel Core i7-7920HQ CPU 3.10GHz (Kaby Lake), 1 CPU, 2 logical and 2 physical co
   [Host]     : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 32bit LegacyJIT-v4.7.3131.0  [AttachedDebugger]
   DefaultJob : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 32bit LegacyJIT-v4.7.3131.0
 
-
-```
 |           Method |     Mean |    Error |   StdDev |
 |----------------- |---------:|---------:|---------:|
 |      CreateIndex |  7.445 s | 0.0857 s | 0.0669 s |
