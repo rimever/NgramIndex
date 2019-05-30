@@ -31,6 +31,6 @@ steps:
   inputs:
     testSelector: 'testAssemblies'
     testAssemblyVer2: '**\*Test*.dll
-    !**\obj\**'
+     !**\*TestAdapter.dll'
     searchFolder: '$(System.DefaultWorkingDirectory)'
 
