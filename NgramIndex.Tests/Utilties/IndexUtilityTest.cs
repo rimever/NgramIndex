@@ -86,6 +86,7 @@ namespace NgramIndex.Tests.Utilties
                 }
             }
 
+            Assert.IsTrue(Directory.Exists(TestSetup.RootDirectory), TestSetup.RootDirectory);
             string saveFilePath =
                 Path.Combine(TestSetup.RootDirectory, "TestResult", "Utilties", "IndexUtility", "SaveIndexData",
                     "test.idx");
