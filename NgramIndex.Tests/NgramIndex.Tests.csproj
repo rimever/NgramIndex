@@ -54,7 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="TestResult\Utilties\IndexUtility\SaveIndexData\test.idx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NgramIndex\NgramIndex.csproj">
@@ -66,6 +65,7 @@
     <Folder Include="TestResult\Services\JapanPostSearchService\CreateIndex\" />
     <Folder Include="TestResult\Services\JapanPostSearchService\SearchInputCase1\" />
     <Folder Include="TestResult\Services\JapanPostSearchService\SearchInputCase2\" />
+    <Folder Include="TestResult\Utilties\IndexUtility\SaveIndexData\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

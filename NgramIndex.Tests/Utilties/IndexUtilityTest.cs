@@ -86,11 +86,10 @@ namespace NgramIndex.Tests.Utilties
                 }
             }
 
-            Assert.IsTrue(Directory.Exists(TestSetup.RootDirectory), TestSetup.RootDirectory);
+            Assert.IsTrue(Directory.Exists(Path.Combine(TestSetup.RootDirectory, "TestResult", "Utilties")));
             string saveFilePath =
                 Path.Combine(TestSetup.RootDirectory, "TestResult", "Utilties", "IndexUtility", "SaveIndexData",
                     "test.idx");
-
             var encoding = Encoding.GetEncoding("Shift-JIS");
             IndexUtility.SaveIndexData(saveFilePath, indices, encoding);
             var actual = IndexUtility.LoadIndexData(saveFilePath, encoding, keywords);
