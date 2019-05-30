@@ -30,7 +30,7 @@ steps:
 - task: VSTest@2
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: '**\*Tests.dll
+    testAssemblyVer2: '**\NgramIndex.Tests.dll
       !**\*TestAdapter.dll
       !**\obj\**'
     searchFolder: '$(System.DefaultWorkingDirectory)'
